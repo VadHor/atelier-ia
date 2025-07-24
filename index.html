@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Atelier IA - Inscription</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -105,12 +104,12 @@
         }
 
         .form-group {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         label {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-weight: 600;
             color: #333;
             font-size: 1.1rem;
@@ -294,6 +293,12 @@
             box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
         }
 
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .success-message {
             display: none;
             background: linear-gradient(135deg, #28a745, #20c997);
@@ -415,20 +420,29 @@
 
             <div class="success-message" id="successMessage">
                 <h3>🎉 Inscription confirmée !</h3>
-                <p>Merci ! Vous recevrez bientôt plus d'informations par email.</p>
-                <p><strong>Votre place est réservée</strong></p>
+                <p>Merci ! Votre inscription a été enregistrée avec succès.</p>
+                <p><strong>Vous recevrez bientôt plus d'informations par email.</strong></p>
             </div>
         </div>
     </div>
 
+    <!-- Bouton Admin (redirection vers Google Sheets) -->
     <a href="#" class="admin-link" onclick="showAdminPassword()">🔧 Admin</a>
 
     <script>
-        // Données des dates disponibles
+        // ✅ CONFIGURATION COMPLÈTE - PRÊT À UTILISER !
+        const GOOGLE_FORM_ID = '1VxL904NSv5R96y8k_b2zpM-UEW-xEHoeRK7r7nIMeKk';
+        const GOOGLE_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/12gjrBjX4d9XA4vFUtnT2eTrDNoE-ktjkhcsja19tTlU/edit?resourcekey=&gid=558068753#gid=558068753';
+        
+        // URLs de base pour Google Forms
+        const GOOGLE_FORM_URL = `https://docs.google.com/forms/d/${GOOGLE_FORM_ID}/formResponse`;
+
+        // Données des dates disponibles (toutes les dates des images)
         const datesDisponibles = {
             debutant: [
                 { date: '02.10.2025', label: 'Débutant : 02.10.2025' },
                 { date: '09.10.2025', label: 'Débutant : 09.10.2025' },
+                { date: '14.10.2025', label: 'Débutant : 14.10.2025' },
                 { date: '16.10.2025', label: 'Débutant : 16.10.2025' },
                 { date: '21.10.2025', label: 'Débutant : 21.10.2025' },
                 { date: '28.10.2025', label: 'Débutant : 28.10.2025' },
@@ -437,12 +451,11 @@
             ],
             intermediaire: [
                 { date: '07.10.2025', label: 'Intermédiaire : 07.10.2025' },
-                { date: '14.10.2025', label: 'Intermédiaire : 14.10.2025' },
+                { date: '13.11.2025', label: 'Intermédiaire : 13.11.2025' },
+                { date: '20.11.2025', label: 'Intermédiaire : 20.11.2025' },
                 { date: '23.10.2025', label: 'Intermédiaire : 23.10.2025' },
                 { date: '29.10.2025', label: 'Intermédiaire : 29.10.2025' },
-                { date: '06.11.2025', label: 'Intermédiaire : 06.11.2025' },
-                { date: '13.11.2025', label: 'Intermédiaire : 13.11.2025' },
-                { date: '20.11.2025', label: 'Intermédiaire : 20.11.2025' }
+                { date: '06.11.2025', label: 'Intermédiaire : 06.11.2025' }
             ]
         };
 
@@ -499,14 +512,14 @@
                 .map(el => el.dataset.date);
         }
 
-        function handleSubmit(e) {
+        async function handleSubmit(e) {
             e.preventDefault();
             
             const formData = {
                 nom: document.getElementById('nom').value,
                 email: document.getElementById('email').value,
                 niveau: selectedNiveau,
-                dates: selectedDates,
+                date: selectedDates[0] || '',
                 dateInscription: new Date().toLocaleString('fr-FR')
             };
 
@@ -516,26 +529,72 @@
                 return;
             }
 
-            // Sauvegarde
-            let inscriptions = JSON.parse(localStorage.getItem('inscriptions')) || [];
-            inscriptions.push(formData);
-            localStorage.setItem('inscriptions', JSON.stringify(inscriptions));
-            
-            // Affichage du message de succès
-            document.getElementById('inscriptionForm').style.display = 'none';
-            document.getElementById('successMessage').classList.add('show');
-            
-            // Scroll vers le message de succès
-            document.getElementById('successMessage').scrollIntoView({ 
-                behavior: 'smooth',
-                block: 'center'
-            });
+            // Vérification de la configuration
+            if (GOOGLE_FORM_ID === 'VOTRE_FORM_ID') {
+                alert('🔧 Formulaire non configuré.\n\nVeuillez contacter l\'administrateur.');
+                return;
+            }
+
+            // Désactiver le bouton pendant l'envoi
+            const submitBtn = document.querySelector('.submit-btn');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Envoi en cours...';
+
+            try {
+                // Envoi vers Google Forms
+                await sendToGoogleForm(formData);
+                
+                // Affichage du message de succès
+                document.getElementById('inscriptionForm').style.display = 'none';
+                document.getElementById('successMessage').classList.add('show');
+                
+                // Scroll vers le message de succès
+                document.getElementById('successMessage').scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+
+            } catch (error) {
+                console.error('Erreur lors de l\'envoi:', error);
+                alert('❌ Erreur lors de l\'inscription. Veuillez réessayer ou nous contacter directement.');
+                
+                // Réactiver le bouton
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
         }
 
+        async function sendToGoogleForm(formData) {
+            // ✅ VOS VRAIS IDs DE CHAMPS GOOGLE FORM
+            const googleFormData = new FormData();
+            
+            // Vos vrais IDs trouvés dans le lien pré-rempli :
+            googleFormData.append('entry.900746911', formData.nom);        // Champ Nom
+            googleFormData.append('entry.1781239235', formData.email);     // Champ Email  
+            googleFormData.append('entry.390654594', formData.niveau);     // Champ Niveau
+            googleFormData.append('entry.841244436', formData.date);       // Champ Date
+
+            // Envoi en mode no-cors pour éviter les problèmes CORS
+            const response = await fetch(GOOGLE_FORM_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: googleFormData
+            });
+
+            // En mode no-cors, on ne peut pas vérifier la réponse, on suppose que ça a marché
+            return true;
+        }
+
+        // Fonction pour l'accès admin (redirection vers Google Sheets)
         function showAdminPassword() {
             const password = prompt('🔐 Mot de passe administrateur :');
             if (password === 'admin123') {
-                window.location.href = 'admin.html';
+                if (GOOGLE_SHEETS_URL === 'VOTRE_LIEN_GOOGLE_SHEETS') {
+                    alert('🔧 Configuration requise !\n\nVeuillez configurer GOOGLE_SHEETS_URL dans le code.');
+                } else {
+                    window.open(GOOGLE_SHEETS_URL, '_blank');
+                }
             } else if (password !== null) {
                 alert('❌ Mot de passe incorrect');
             }
