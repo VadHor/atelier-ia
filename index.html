@@ -430,12 +430,12 @@
     <a href="#" class="admin-link" onclick="showAdminPassword()">🔧 Admin</a>
 
     <script>
-        // ✅ CONFIGURATION COMPLÈTE - PRÊT À UTILISER !
-        const GOOGLE_FORM_ID = '1VxL904NSv5R96y8k_b2zpM-UEW-xEHoeRK7r7nIMeKk';
+        // ✅ CONFIGURATION GOOGLE APPS SCRIPT (Solution anti-CORS)
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzCGdlwvTRyopgZt85iiRb0OeidSR75S-_s4hktDhnIRSOwskC1ji4UmZbFeYSJ7GfWlQ/exec';
         const GOOGLE_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/12gjrBjX4d9XA4vFUtnT2eTrDNoE-ktjkhcsja19tTlU/edit?resourcekey=&gid=558068753#gid=558068753';
         
-        // URLs de base pour Google Forms
-        const GOOGLE_FORM_URL = `https://docs.google.com/forms/d/${GOOGLE_FORM_ID}/formResponse`;
+        // URLs de base pour Google Apps Script
+        const SCRIPT_URL = GOOGLE_SCRIPT_URL;
 
         // Données des dates disponibles (toutes les dates des images)
         const datesDisponibles = {
@@ -530,8 +530,10 @@
             }
 
             // Vérification de la configuration
-            if (GOOGLE_FORM_ID === 'VOTRE_FORM_ID') {
-                alert('🔧 Formulaire non configuré.\n\nVeuillez contacter l\'administrateur.');
+            if (GOOGLE_SCRIPT_URL.includes('AKfycbzCGdlwvTRyopgZt85iiRb0OeidSR75S-_s4hktDhnIRSOwskC1ji4UmZbFeYSJ7GfWlQ')) {
+                // Configuration OK, on peut envoyer
+            } else {
+                alert('🔧 Script non configuré.\n\nVeuillez contacter l\'administrateur.');
                 return;
             }
 
@@ -542,8 +544,8 @@
             submitBtn.textContent = '⏳ Envoi en cours...';
 
             try {
-                // Envoi vers Google Forms
-                await sendToGoogleForm(formData);
+                // Envoi vers Google Apps Script
+                await sendToGoogleScript(formData);
                 
                 // Affichage du message de succès
                 document.getElementById('inscriptionForm').style.display = 'none';
@@ -565,35 +567,36 @@
             }
         }
 
-        async function sendToGoogleForm(formData) {
-            // ✅ VOS VRAIS IDs DE CHAMPS GOOGLE FORM
-            const googleFormData = new FormData();
-            
-            // Vos vrais IDs trouvés dans le lien pré-rempli :
-            googleFormData.append('entry.900746911', formData.nom);        // Champ Nom
-            googleFormData.append('entry.1781239235', formData.email);     // Champ Email  
-            googleFormData.append('entry.390654594', formData.niveau);     // Champ Niveau
-            googleFormData.append('entry.841244436', formData.date);       // Champ Date
-
-            // Envoi en mode no-cors pour éviter les problèmes CORS
-            const response = await fetch(GOOGLE_FORM_URL, {
+        async function sendToGoogleScript(formData) {
+            // Envoi des données vers Google Apps Script (contourne CORS)
+            const response = await fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
-                mode: 'no-cors',
-                body: googleFormData
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
             });
 
-            // En mode no-cors, on ne peut pas vérifier la réponse, on suppose que ça a marché
-            return true;
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+
+            const result = await response.json();
+            
+            if (!result.success) {
+                throw new Error(result.error || 'Erreur inconnue');
+            }
+
+            return result;
         }
 
-        // Fonction pour l'accès admin (redirection vers Google Sheets)
         function showAdminPassword() {
             const password = prompt('🔐 Mot de passe administrateur :');
             if (password === 'admin123') {
-                if (GOOGLE_SHEETS_URL === 'VOTRE_LIEN_GOOGLE_SHEETS') {
-                    alert('🔧 Configuration requise !\n\nVeuillez configurer GOOGLE_SHEETS_URL dans le code.');
-                } else {
+                if (GOOGLE_SHEETS_URL.includes('12gjrBjX4d9XA4vFUtnT2eTrDNoE-ktjkhcsja19tTlU')) {
                     window.open(GOOGLE_SHEETS_URL, '_blank');
+                } else {
+                    alert('🔧 Configuration requise !\n\nVeuillez configurer GOOGLE_SHEETS_URL dans le code.');
                 }
             } else if (password !== null) {
                 alert('❌ Mot de passe incorrect');
