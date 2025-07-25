@@ -255,6 +255,42 @@
             box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
         }
 
+        /* Système de couleurs selon le taux de remplissage */
+        .date-option.color-green {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #f8fff9, #e8f8e8);
+        }
+
+        .date-option.color-orange {
+            border-color: #ffc107;
+            background: linear-gradient(135deg, #fffdf0, #fff8e1);
+        }
+
+        .date-option.color-red {
+            border-color: #dc3545;
+            background: linear-gradient(135deg, #fff5f5, #fee);
+        }
+
+        .date-option.color-gray {
+            border-color: #6c757d;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        }
+
+        .date-option.color-green:hover {
+            border-color: #1e7e34;
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .date-option.color-orange:hover {
+            border-color: #e0a800;
+            box-shadow: 0 8px 20px rgba(255, 193, 7, 0.3);
+        }
+
+        .date-option.color-red:hover {
+            border-color: #c82333;
+            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3);
+        }
+
         .date-option.complet {
             background: #f5f5f5;
             color: #999;
@@ -281,12 +317,20 @@
             color: #28a745;
         }
 
+        .places-info.attention {
+            color: #fd7e14;
+        }
+
+        .places-info.critique {
+            color: #dc3545;
+        }
+
         .places-info.limite {
             color: #ffc107;
         }
 
         .places-info.complet {
-            color: #dc3545;
+            color: #6c757d;
         }
 
         .submit-btn {
@@ -589,28 +633,45 @@
                 dateElement.className = 'date-option';
                 dateElement.dataset.date = dateObj.date;
                 
-                // Informations sur les places
+                // Informations sur les places avec système de couleurs
                 const dispo = disponibilites[dateObj.date];
                 let placesInfo = '';
                 let statusClass = 'disponible';
+                let colorClass = 'color-green';
                 
                 if (dispo) {
                     const restantes = dispo.restantes;
+                    
                     if (dispo.complet) {
                         placesInfo = 'COMPLET (12/12)';
                         statusClass = 'complet';
+                        colorClass = 'color-gray';
                         dateElement.classList.add('complet');
+                    } else if (restantes === 1) {
+                        placesInfo = `${restantes} place restante !`;
+                        statusClass = 'critique';
+                        colorClass = 'color-red';
                     } else if (restantes <= 3) {
-                        placesInfo = `${restantes} place(s) restante(s)`;
-                        statusClass = 'limite';
+                        placesInfo = `${restantes} places restantes`;
+                        statusClass = 'critique';
+                        colorClass = 'color-red';
+                    } else if (restantes <= 6) {
+                        placesInfo = `${restantes} places disponibles`;
+                        statusClass = 'attention';
+                        colorClass = 'color-orange';
                     } else {
                         placesInfo = `${restantes} places disponibles`;
                         statusClass = 'disponible';
+                        colorClass = 'color-green';
                     }
                 } else {
                     placesInfo = '12 places disponibles';
                     statusClass = 'disponible';
+                    colorClass = 'color-green';
                 }
+                
+                // Appliquer les classes de couleur
+                dateElement.classList.add(colorClass);
                 
                 dateElement.innerHTML = `
                     ${dateObj.label}
