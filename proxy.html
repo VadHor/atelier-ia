@@ -81,7 +81,9 @@
                 
                 // Rediriger vers la page de succès après 3 secondes
                 setTimeout(() => {
-                    window.location.href = 'success.html?nom=' + encodeURIComponent(formData.nom) + '&date=' + encodeURIComponent(formData.date);
+                    window.location.href = 'success.html?nom=' + encodeURIComponent(formData.nom) + 
+                        '&date=' + encodeURIComponent(formData.date) + 
+                        '&niveau=' + encodeURIComponent(formData.niveau);
                 }, 3000);
             } else {
                 window.location.href = 'index.html?error=donnees_manquantes';
