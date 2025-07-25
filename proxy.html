@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inscription en cours...</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .loader {
+            text-align: center;
+        }
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader">
+        <div class="spinner"></div>
+        <h2>🚀 Inscription en cours...</h2>
+        <p>Veuillez patienter...</p>
+    </div>
+
+    <script>
+        // Récupérer les paramètres de l'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const formData = {
+            nom: urlParams.get('nom'),
+            email: urlParams.get('email'),
+            niveau: urlParams.get('niveau'),
+            date: urlParams.get('date'),
+            dateInscription: new Date().toLocaleString('fr-FR')
+        };
+
+        // URL du Google Apps Script
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzCGdlwvTRyopgZt85iiRb0OeidSR75S-_s4hktDhnIRSOwskC1ji4UmZbFeYSJ7GfWlQ/exec';
+
+        // Créer un formulaire invisible et le soumettre
+        function submitToGoogleScript() {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = GOOGLE_SCRIPT_URL;
+            form.style.display = 'none';
+
+            // Ajouter tous les champs
+            Object.keys(formData).forEach(key => {
+                if (formData[key]) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = formData[key];
+                    form.appendChild(input);
+                }
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        // Démarrer la soumission après 1 seconde
+        setTimeout(() => {
+            if (formData.nom && formData.email && formData.niveau && formData.date) {
+                submitToGoogleScript();
+                
+                // Rediriger vers la page de succès après 3 secondes
+                setTimeout(() => {
+                    window.location.href = 'success.html?nom=' + encodeURIComponent(formData.nom) + '&date=' + encodeURIComponent(formData.date);
+                }, 3000);
+            } else {
+                window.location.href = 'index.html?error=donnees_manquantes';
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
