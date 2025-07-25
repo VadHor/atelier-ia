@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription confirmée - Atelier IA</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .success-container {
+            background: white;
+            padding: 60px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+        }
+        .details {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border-left: 5px solid #28a745;
+        }
+        .back-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        .info {
+            color: #666;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <div class="success-icon">🎉</div>
+        <h1>Inscription confirmée !</h1>
+        <p>Merci ! Votre inscription à l'Atelier IA a été enregistrée avec succès.</p>
+        
+        <div class="details">
+            <h3>📋 Détails de votre inscription :</h3>
+            <p><strong>👤 Participant :</strong> <span id="participantNom">-</span></p>
+            <p><strong>📅 Date de session :</strong> <span id="sessionDate">-</span></p>
+            <p><strong>🎯 Niveau :</strong> <span id="sessionNiveau">-</span></p>
+        </div>
+
+        <div class="info">
+            <p>📧 Un email de confirmation sera envoyé prochainement</p>
+            <p>⚠️ Places limitées : 12 participants maximum par session</p>
+        </div>
+
+        <a href="index.html" class="back-btn">🔙 Retour à l'accueil</a>
+    </div>
+
+    <script>
+        // Récupérer les paramètres de l'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const nom = urlParams.get('nom') || 'Non spécifié';
+        const date = urlParams.get('date') || 'Non spécifiée';
+        const niveau = urlParams.get('niveau') || 'Non spécifié';
+
+        // Afficher les détails
+        document.getElementById('participantNom').textContent = nom;
+        document.getElementById('sessionDate').textContent = date;
+        document.getElementById('sessionNiveau').textContent = niveau.charAt(0).toUpperCase() + niveau.slice(1);
+
+        // Redirection automatique après 30 secondes
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 30000);
+    </script>
+</body>
+</html>
