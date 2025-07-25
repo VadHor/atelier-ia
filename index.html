@@ -545,8 +545,28 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    disponibilites = result.disponibilites || {};
-                    console.log('Disponibilités chargées:', disponibilites);
+                    // Convertir les clés de dates au bon format
+                    const disponibilitesConverties = {};
+                    
+                    Object.keys(result.disponibilites || {}).forEach(dateKey => {
+                        // Convertir "Thu Oct 02 2025..." vers "02.10.2025"
+                        try {
+                            const dateObj = new Date(dateKey);
+                            const day = String(dateObj.getDate()).padStart(2, '0');
+                            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                            const year = dateObj.getFullYear();
+                            const formatteDate = `${day}.${month}.${year}`;
+                            
+                            disponibilitesConverties[formatteDate] = result.disponibilites[dateKey];
+                            console.log(`Conversion: ${dateKey} → ${formatteDate}`);
+                        } catch (e) {
+                            // Si la conversion échoue, garder la clé originale
+                            disponibilitesConverties[dateKey] = result.disponibilites[dateKey];
+                        }
+                    });
+                    
+                    disponibilites = disponibilitesConverties;
+                    console.log('Disponibilités converties:', disponibilites);
                 }
             } catch (error) {
                 console.error('Erreur lors du chargement des disponibilités:', error);
