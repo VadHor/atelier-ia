@@ -63,6 +63,11 @@
             margin-top: 20px;
             font-size: 0.9rem;
         }
+        .countdown {
+            color: #999;
+            font-size: 0.8rem;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
@@ -84,6 +89,10 @@
         </div>
 
         <a href="index.html" class="back-btn">🔙 Retour à l'accueil</a>
+        
+        <div class="countdown">
+            Redirection automatique dans <span id="timer">15</span> secondes...
+        </div>
     </div>
 
     <script>
@@ -98,10 +107,26 @@
         document.getElementById('sessionDate').textContent = date;
         document.getElementById('sessionNiveau').textContent = niveau.charAt(0).toUpperCase() + niveau.slice(1);
 
-        // Redirection automatique après 30 secondes
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 30000);
+        // Countdown et redirection automatique
+        let countdown = 15;
+        const timerElement = document.getElementById('timer');
+        
+        const interval = setInterval(() => {
+            countdown--;
+            timerElement.textContent = countdown;
+            
+            if (countdown <= 0) {
+                clearInterval(interval);
+                window.location.href = 'index.html';
+            }
+        }, 1000);
+
+        // Permettre de cliquer pour accélérer
+        document.addEventListener('click', () => {
+            if (countdown > 3) {
+                countdown = 3;
+            }
+        });
     </script>
 </body>
 </html>
