@@ -1,94 +1,132 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-    <title>Inscription en cours...</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription confirmée - Atelier IA</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
             margin: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            padding: 20px;
         }
-        .loader {
+        .success-container {
+            background: white;
+            padding: 60px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             text-align: center;
+            max-width: 600px;
+            width: 100%;
         }
-        .spinner {
-            border: 4px solid rgba(255,255,255,0.3);
-            border-top: 4px solid white;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+        }
+        .details {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border-left: 5px solid #28a745;
+        }
+        .back-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        .info {
+            color: #666;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+        .countdown {
+            color: #999;
+            font-size: 0.8rem;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
-    <div class="loader">
-        <div class="spinner"></div>
-        <h2>🚀 Inscription en cours...</h2>
-        <p>Veuillez patienter...</p>
+    <div class="success-container">
+        <div class="success-icon">🎉</div>
+        <h1>Inscription confirmée !</h1>
+        <p>Merci ! Votre inscription à l'Atelier IA a été enregistrée avec succès.</p>
+        
+        <div class="details">
+            <h3>📋 Détails de votre inscription :</h3>
+            <p><strong>👤 Participant :</strong> <span id="participantNom">-</span></p>
+            <p><strong>📅 Date de session :</strong> <span id="sessionDate">-</span></p>
+            <p><strong>🎯 Niveau :</strong> <span id="sessionNiveau">-</span></p>
+        </div>
+
+        <div class="info">
+            <p>📧 Un email de confirmation sera envoyé prochainement</p>
+            <p>⚠️ Places limitées : 12 participants maximum par session</p>
+        </div>
+
+        <a href="index.html" class="back-btn">🔙 Retour à l'accueil</a>
+        
+        <div class="countdown">
+            Redirection automatique dans <span id="timer">15</span> secondes...
+        </div>
     </div>
 
     <script>
         // Récupérer les paramètres de l'URL
         const urlParams = new URLSearchParams(window.location.search);
-        const formData = {
-            nom: urlParams.get('nom'),
-            email: urlParams.get('email'),
-            niveau: urlParams.get('niveau'),
-            date: urlParams.get('date'),
-            dateInscription: new Date().toLocaleString('fr-FR')
-        };
+        const nom = urlParams.get('nom') || 'Non spécifié';
+        const date = urlParams.get('date') || 'Non spécifiée';
+        const niveau = urlParams.get('niveau') || 'Non spécifié';
 
-        // URL du Google Apps Script
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzCGdlwvTRyopgZt85iiRb0OeidSR75S-_s4hktDhnIRSOwskC1ji4UmZbFeYSJ7GfWlQ/exec';
+        // Afficher les détails
+        document.getElementById('participantNom').textContent = nom;
+        document.getElementById('sessionDate').textContent = date;
+        document.getElementById('sessionNiveau').textContent = niveau.charAt(0).toUpperCase() + niveau.slice(1);
 
-        // Créer un formulaire invisible et le soumettre
-        function submitToGoogleScript() {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = GOOGLE_SCRIPT_URL;
-            form.style.display = 'none';
-
-            // Ajouter tous les champs
-            Object.keys(formData).forEach(key => {
-                if (formData[key]) {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = key;
-                    input.value = formData[key];
-                    form.appendChild(input);
-                }
-            });
-
-            document.body.appendChild(form);
-            form.submit();
-        }
-
-        // Démarrer la soumission après 1 seconde
-        setTimeout(() => {
-            if (formData.nom && formData.email && formData.niveau && formData.date) {
-                submitToGoogleScript();
-                
-                // Rediriger vers la page de succès après 3 secondes
-                setTimeout(() => {
-                    window.location.href = 'success.html?nom=' + encodeURIComponent(formData.nom) + 
-                        '&date=' + encodeURIComponent(formData.date) + 
-                        '&niveau=' + encodeURIComponent(formData.niveau);
-                }, 3000);
-            } else {
-                window.location.href = 'index.html?error=donnees_manquantes';
+        // Countdown et redirection automatique
+        let countdown = 15;
+        const timerElement = document.getElementById('timer');
+        
+        const interval = setInterval(() => {
+            countdown--;
+            timerElement.textContent = countdown;
+            
+            if (countdown <= 0) {
+                clearInterval(interval);
+                window.location.href = 'index.html';
             }
         }, 1000);
+
+        // Permettre de cliquer pour accélérer
+        document.addEventListener('click', () => {
+            if (countdown > 3) {
+                countdown = 3;
+            }
+        });
     </script>
 </body>
 </html>
