@@ -484,9 +484,6 @@
     <!-- Bouton Admin -->
     <a href="#" class="admin-link" onclick="showAdminPassword()">🔧 Admin</a>
 
-    <!-- Iframe invisible pour contourner CORS -->
-    <iframe id="hiddenFrame" name="hiddenFrame" style="display:none;"></iframe>
-
     <script>
         // ✅ CONFIGURATION VALIDÉE - URLs qui fonctionnent
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzCGdlwvTRyopgZt85iiRb0OeidSR75S-_s4hktDhnIRSOwskC1ji4UmZbFeYSJ7GfWlQ/exec';
@@ -627,8 +624,7 @@
                 nom: document.getElementById('nom').value,
                 email: document.getElementById('email').value,
                 niveau: selectedNiveau,
-                date: selectedDates[0] || '',
-                dateInscription: new Date().toLocaleString('fr-FR')
+                date: selectedDates[0] || ''
             };
 
             // Validation
@@ -644,64 +640,15 @@
                 return;
             }
 
-            // Désactiver le bouton pendant l'envoi
-            const submitBtn = document.querySelector('.submit-btn');
-            const originalText = submitBtn.textContent;
-            submitBtn.disabled = true;
-            submitBtn.textContent = '⏳ Vérification des places...';
-
-            try {
-                console.log('Envoi inscription:', formData);
-                
-                // SOLUTION CORS : Soumission via iframe invisible
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = GOOGLE_SCRIPT_URL;
-                form.target = 'hiddenFrame';
-                form.style.display = 'none';
-
-                // Ajouter les champs
-                Object.keys(formData).forEach(key => {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = key;
-                    input.value = formData[key];
-                    form.appendChild(input);
-                });
-
-                document.body.appendChild(form);
-                form.submit();
-                document.body.removeChild(form);
-
-                console.log('Formulaire soumis via iframe invisible');
-                
-                // Simuler le succès après 2 secondes
-                setTimeout(() => {
-                    document.getElementById('inscriptionForm').style.display = 'none';
-                    document.getElementById('placesInfo').textContent = 
-                        `Votre inscription a été envoyée avec succès !`;
-                    document.getElementById('successMessage').classList.add('show');
-                    
-                    // Scroll vers le message
-                    document.getElementById('successMessage').scrollIntoView({ 
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-                    
-                    // Recharger les disponibilités après 3 secondes
-                    setTimeout(async () => {
-                        await loadDisponibilites();
-                    }, 3000);
-                }, 2000);
-
-            } catch (error) {
-                console.error('Erreur complète:', error);
-                showError('Erreur lors de l\'envoi. Veuillez réessayer.');
-                
-                // Réactiver le bouton
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
-            }
+            // SOLUTION DÉFINITIVE : Redirection vers proxy pour contourner CORS
+            const proxyUrl = 'proxy.html?' + 
+                'nom=' + encodeURIComponent(formData.nom) +
+                '&email=' + encodeURIComponent(formData.email) +
+                '&niveau=' + encodeURIComponent(formData.niveau) +
+                '&date=' + encodeURIComponent(formData.date);
+            
+            console.log('Redirection vers proxy:', proxyUrl);
+            window.location.href = proxyUrl;
         }
 
         function showError(message) {
