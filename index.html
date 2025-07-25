@@ -677,13 +677,19 @@
             }
         }
 
-        // Recharger les disponibilités toutes les 30 secondes
+        // Recharger les disponibilités toutes les 30 secondes pour décompte en temps réel
         setInterval(async () => {
             await loadDisponibilites();
             if (selectedNiveau) {
                 generateDatesGrid();
             }
         }, 30000);
+
+        // Au chargement, vérifier si on revient d'une inscription réussie
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('error') === 'donnees_manquantes') {
+            showError('⚠️ Données manquantes. Veuillez remplir le formulaire complet.');
+        }
     </script>
 </body>
 </html>
