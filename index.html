@@ -758,13 +758,13 @@
             }
         }
 
-        // Recharger les disponibilités toutes les 30 secondes pour décompte en temps réel
+        // Recharger les disponibilités toutes les 15 secondes pour décompte en temps réel
         setInterval(async () => {
             await loadDisponibilites();
             if (selectedNiveau) {
                 generateDatesGrid();
             }
-        }, 30000);
+        }, 15000); // Réduit de 30s à 15s
 
         // Au chargement, vérifier si on revient d'une inscription réussie
         const urlParams = new URLSearchParams(window.location.search);
