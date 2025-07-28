@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atelier IA - Inscription</title>
+    <title>Atelier IA à l'ORP - Inscription</title>
     <style>
         * {
             margin: 0;
@@ -460,12 +460,12 @@
     <div class="container">
         <div class="hero-section">
             <div class="hero-content">
-                <h1>🤖 ATELIER IA</h1>
-                <p class="subtitle">Découvrez le potentiel de l'Intelligence Artificielle</p>
+                <h1>🤖 ATELIER IA À L'ORP !</h1>
+                <p class="subtitle">Venez découvrir le potentiel de l'Intelligence Artificielle</p>
                 
                 <div class="highlight-box">
-                    <h3>✨ Apprenez à maîtriser les outils IA</h3>
-                    <p>Session pratique avec des collègues • Outils concrets • Un moment d'échange !</p>
+                    <h3>✨ Découvrez les outils IA avec vos collègues</h3>
+                    <p>Des ateliers pratiques faits par des conseillers pour des conseillers • Une panoplie d'outils concrets • Un moment d'échange en toute simplicité !</p>
                     <p><strong>⚠️ Places limitées : 12 participants maximum par session</strong></p>
                 </div>
             </div>
@@ -536,22 +536,22 @@
         // Données des dates disponibles
         const datesDisponibles = {
             debutant: [
-                { date: '02.10.2025', label: 'Débutant : 02.10.2025' },
-                { date: '09.10.2025', label: 'Débutant : 09.10.2025' },
-                { date: '14.10.2025', label: 'Débutant : 14.10.2025' },
-                { date: '16.10.2025', label: 'Débutant : 16.10.2025' },
-                { date: '21.10.2025', label: 'Débutant : 21.10.2025' },
-                { date: '28.10.2025', label: 'Débutant : 28.10.2025' },
-                { date: '04.11.2025', label: 'Débutant : 04.11.2025' },
-                { date: '11.11.2025', label: 'Débutant : 11.11.2025' }
+                { date: '02.10.2025', label: 'Débutant : 02.10.2025 (08h30-12h00)' },
+                { date: '09.10.2025', label: 'Débutant : 09.10.2025 (08h30-12h00)' },
+                { date: '14.10.2025', label: 'Débutant : 14.10.2025 (08h30-12h00)' },
+                { date: '16.10.2025', label: 'Débutant : 16.10.2025 (08h30-12h00)' },
+                { date: '21.10.2025', label: 'Débutant : 21.10.2025 (08h30-12h00)' },
+                { date: '28.10.2025', label: 'Débutant : 28.10.2025 (08h30-12h00)' },
+                { date: '04.11.2025', label: 'Débutant : 04.11.2025 (08h30-12h00)' },
+                { date: '11.11.2025', label: 'Débutant : 11.11.2025 (08h30-12h00)' }
             ],
             intermediaire: [
-                { date: '07.10.2025', label: 'Intermédiaire : 07.10.2025' },
-                { date: '13.11.2025', label: 'Intermédiaire : 13.11.2025' },
-                { date: '20.11.2025', label: 'Intermédiaire : 20.11.2025' },
-                { date: '23.10.2025', label: 'Intermédiaire : 23.10.2025' },
-                { date: '29.10.2025', label: 'Intermédiaire : 29.10.2025' },
-                { date: '06.11.2025', label: 'Intermédiaire : 06.11.2025' }
+                { date: '07.10.2025', label: 'Intermédiaire : 07.10.2025 (08h30-12h00)' },
+                { date: '13.11.2025', label: 'Intermédiaire : 13.11.2025 (08h30-12h00)' },
+                { date: '20.11.2025', label: 'Intermédiaire : 20.11.2025 (08h30-12h00)' },
+                { date: '23.10.2025', label: 'Intermédiaire : 23.10.2025 (08h30-12h00)' },
+                { date: '29.10.2025', label: 'Intermédiaire : 29.10.2025 (08h30-12h00)' },
+                { date: '06.11.2025', label: 'Intermédiaire : 06.11.2025 (08h30-12h00)' }
             ]
         };
 
@@ -758,13 +758,42 @@
             }
         }
 
-        // Recharger les disponibilités toutes les 15 secondes pour décompte en temps réel
-        setInterval(async () => {
-            await loadDisponibilites();
-            if (selectedNiveau) {
-                generateDatesGrid();
-            }
-        }, 15000); // Réduit de 30s à 15s
+        // Système de rafraîchissement adaptatif pour éviter la surcharge
+        let refreshInterval = 60000; // Commencer à 60 secondes
+        let refreshTimer;
+
+        function startAdaptiveRefresh() {
+            if (refreshTimer) clearInterval(refreshTimer);
+            
+            refreshTimer = setInterval(async () => {
+                // Rafraîchir seulement si l'onglet est visible
+                if (!document.hidden) {
+                    await loadDisponibilites();
+                    if (selectedNiveau) {
+                        generateDatesGrid();
+                    }
+                }
+            }, refreshInterval);
+        }
+
+        // Accélérer le rafraîchissement quand l'utilisateur interagit
+        function boostRefresh() {
+            refreshInterval = 30000; // 30 secondes quand actif
+            startAdaptiveRefresh();
+            
+            // Revenir à 60 secondes après 5 minutes d'inactivité
+            setTimeout(() => {
+                refreshInterval = 60000;
+                startAdaptiveRefresh();
+            }, 300000);
+        }
+
+        // Démarrer le rafraîchissement adaptatif
+        startAdaptiveRefresh();
+
+        // Accélérer lors d'interactions
+        document.addEventListener('click', boostRefresh);
+        document.addEventListener('focus', boostRefresh);
 
         // Au chargement, vérifier si on revient d'une inscription réussie
         const urlParams = new URLSearchParams(window.location.search);
