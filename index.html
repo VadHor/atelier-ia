@@ -464,8 +464,8 @@
                 <p class="subtitle">Venez découvrir le potentiel de l'Intelligence Artificielle</p>
                 
                 <div class="highlight-box">
-                    <h3>✨ Découvrez les outils IA avec vos collègues</h3>
-                    <p>Des ateliers pratiques faits par des conseillers pour des conseillers • Une panoplie d'outils concrets • Un moment d'échange en toute simplicité !</p>
+                    <h3>✨ Des outils IA concrets pour améliorer votre quotidien professionnel</h3>
+                    <p>Une panoplie d'outils concrets • Un moment d'échange en toute simplicité !</p>
                     <p><strong>⚠️ Places limitées : 12 participants maximum par session</strong></p>
                 </div>
             </div>
@@ -510,6 +510,10 @@
                 <button type="submit" class="submit-btn">
                     🚀 Confirmer mon inscription
                 </button>
+                
+                <div style="text-align: center; margin-top: 15px; padding: 15px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 10px; color: #856404; font-size: 0.9rem;">
+                    ⚠️ <strong>Important :</strong> Ne soumettez le formulaire qu'une seule fois. Les inscriptions multiples pour la même session seront automatiquement refusées.
+                </div>
             </form>
 
             <div class="success-message" id="successMessage">
@@ -721,68 +725,15 @@
                 return;
             }
 
-            // NOUVEAU : Vérification des doublons côté client
-            const submitBtn = document.querySelector('.submit-btn');
-            const originalText = submitBtn.textContent;
-            submitBtn.disabled = true;
-            submitBtn.textContent = '🔍 Vérification en cours...';
-
-            try {
-                console.log('Vérification des doublons...');
-                
-                // Récupérer les données actuelles
-                const response = await fetch(GOOGLE_SCRIPT_URL);
-                const result = await response.json();
-                
-                if (result.success && result.disponibilites) {
-                    // Vérifier si cette date a des inscriptions
-                    const dateChoisie = formData.date;
-                    console.log('Vérification doublon pour:', formData.email, 'date:', dateChoisie);
-                    
-                    // Faire un test d'inscription pour voir si c'est un doublon
-                    const testResponse = await fetch(GOOGLE_SCRIPT_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            ...formData,
-                            test_mode: true // Mode test pour vérifier sans inscrire
-                        })
-                    });
-                    
-                    if (testResponse.ok) {
-                        const testResult = await testResponse.json();
-                        
-                        if (!testResult.success && testResult.error === 'DOUBLON_DETECTE') {
-                            // Afficher l'erreur de doublon
-                            showError(`🚨 ${testResult.message}\n\n💡 ${testResult.conseil || 'Contactez l\'administrateur si vous souhaitez modifier votre inscription.'}`);
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = originalText;
-                            return;
-                        }
-                    }
-                }
-                
-                // Si pas de doublon, procéder à l'inscription
-                submitBtn.textContent = '🚀 Inscription en cours...';
-                
-                // SOLUTION DÉFINITIVE : Redirection vers proxy pour contourner CORS
-                const proxyUrl = 'proxy.html?' + 
-                    'nom=' + encodeURIComponent(formData.nom) +
-                    '&email=' + encodeURIComponent(formData.email) +
-                    '&niveau=' + encodeURIComponent(formData.niveau) +
-                    '&date=' + encodeURIComponent(formData.date);
-                
-                console.log('Redirection vers proxy:', proxyUrl);
-                window.location.href = proxyUrl;
-                
-            } catch (error) {
-                console.error('Erreur lors de la vérification:', error);
-                showError('❌ Erreur de connexion. Veuillez réessayer.');
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
-            }
+            // SOLUTION DÉFINITIVE : Redirection vers proxy pour contourner CORS
+            const proxyUrl = 'proxy.html?' + 
+                'nom=' + encodeURIComponent(formData.nom) +
+                '&email=' + encodeURIComponent(formData.email) +
+                '&niveau=' + encodeURIComponent(formData.niveau) +
+                '&date=' + encodeURIComponent(formData.date);
+            
+            console.log('Redirection vers proxy:', proxyUrl);
+            window.location.href = proxyUrl;
         }
 
         function showError(message) {
